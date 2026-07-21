@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mineirinho Hamburgueria</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --mineiro-yellow: #F5A623;
+      --mineiro-dark: #1A1A1A;
+      --mineiro-red: #C0392B;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--mineiro-dark);
+      min-height: 100vh;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, var(--mineiro-dark) 0%, #2d1f1f 100%);
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 3px solid var(--mineiro-yellow);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo-section { display: flex; align-items: center; gap: 12px; }
+    .logo-icon {
+      width: 50px; height: 50px; background: var(--mineiro-yellow);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+    }
+    .logo-text {
+      font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 2px;
+      color: var(--mineiro-yellow); text-shadow: 2px 2px 0 var(--mineiro-red);
+    }
+    .logo-sub { font-size: 11px; color: #aaa; letter-spacing: 3px; text-transform: uppercase; }
+
+    .cart-header-btn {
+      position: relative;
+      background: var(--mineiro-yellow);
+      border: none;
+      border-radius: 12px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--mineiro-dark);
+    }
+    .cart-badge {
+      position: absolute;
+      top: -6px; right: -6px;
+      background: var(--mineiro-red);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid var(--mineiro-dark);
+    }
+    .cart-badge.hidden { display: none; }
+
+    .hero {
+      background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('img/hero.jpg');
+      background-size: cover; background-position: center;
+      padding: 60px 24px; text-align: center;
+    }
+    .hero h1 {
+      font-family: 'Bebas Neue', sans-serif; font-size: 48px;
+      color: var(--mineiro-yellow); text-shadow: 3px 3px 0 var(--mineiro-red); margin-bottom: 8px;
+    }
+    .hero p { color: #ddd; font-size: 16px; max-width: 500px; margin: 0 auto; }
+
+    .menu-section { padding: 40px 24px; max-width: 1200px; margin: 0 auto; }
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--mineiro-yellow);
+      text-align: center; margin-bottom: 32px; position: relative;
+    }
+    .section-title::after {
+      content: ''; display: block; width: 80px; height: 3px;
+      background: var(--mineiro-red); margin: 8px auto 0; border-radius: 2px;
+    }
+
+    .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+
+    .burger-card {
+      background: linear-gradient(145deg, #2a2a2a, #1f1f1f);
+      border-radius: 16px; overflow: hidden; cursor: pointer;
+      transition: all 0.3s ease; border: 2px solid transparent; position: relative;
+    }
+    .burger-card:hover {
+      transform: translateY(-6px); border-color: var(--mineiro-yellow);
+      box-shadow: 0 12px 40px rgba(245, 166, 35, 0.2);
+    }
+    .burger-img { width: 100%; height: 180px; object-fit: cover; display: block; }
+    .burger-info { padding: 20px; }
+    .burger-name { font-family: 'Bebas Neue', sans-serif; font-size: 24px; color: #fff; margin-bottom: 6px; }
+    .burger-desc { font-size: 13px; color: #aaa; margin-bottom: 12px; line-height: 1.5; }
+    .burger-price { font-size: 22px; font-weight: 700; color: var(--mineiro-yellow); }
+    .burger-price span { font-size: 14px; color: #888; font-weight: 400; }
+    .add-btn {
+      position: absolute; bottom: 20px; right: 20px; width: 40px; height: 40px;
+      background: var(--mineiro-yellow); border: none; border-radius: 50%;
+      color: var(--mineiro-dark); font-size: 24px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+    }
+
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000; padding: 20px;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: all; }
+    .modal {
+      background: #222; border-radius: 20px; max-width: 480px; width: 100%;
+      max-height: 90vh; overflow-y: auto;
+      border: 2px solid var(--mineiro-yellow);
+      transform: scale(0.9); transition: transform 0.3s;
+    }
+    .modal-overlay.active .modal { transform: scale(1); }
+
+    .modal-header { position: relative; height: 200px; }
+    .modal-header img { width: 100%; height: 100%; object-fit: cover; border-radius: 18px 18px 0 0; }
+    .modal-close {
+      position: absolute; top: 12px; right: 12px; width: 36px; height: 36px;
+      background: rgba(0,0,0,0.7); border: none; border-radius: 50%; color: #fff;
+      font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+
+    .modal-body { padding: 24px; }
+    .modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--mineiro-yellow); margin-bottom: 4px; }
+    .modal-desc { color: #aaa; font-size: 14px; margin-bottom: 20px; }
+
+    .additionals-title { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 12px; }
+
+    .additional-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px; background: #2a2a2a; border-radius: 10px;
+      margin-bottom: 8px; cursor: pointer; transition: all 0.2s; border: 2px solid transparent;
+    }
+    .additional-item.selected { border-color: var(--mineiro-yellow); background: rgba(245, 166, 35, 0.1); }
+    .additional-left { display: flex; align-items: center; gap: 12px; }
+    .additional-check {
+      width: 22px; height: 22px; border: 2px solid #555; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+    }
+    .additional-item.selected .additional-check { background: var(--mineiro-yellow); border-color: var(--mineiro-yellow); color: var(--mineiro-dark); }
+    .additional-name { font-size: 14px; color: #ddd; }
+    .additional-price { font-size: 14px; font-weight: 600; color: var(--mineiro-yellow); }
+
+    .modal-footer {
+      padding: 20px 24px; border-top: 1px solid #333;
+      display: flex; flex-direction: column; gap: 16px;
+    }
+    .total-label { font-size: 14px; color: #888; }
+    .total-value { font-size: 24px; font-weight: 700; color: var(--mineiro-yellow); }
+
+    .add-to-cart-btn {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      width: 100%; padding: 16px; border: none; border-radius: 14px;
+      background: var(--mineiro-yellow); color: var(--mineiro-dark);
+      font-size: 16px; font-weight: 700; cursor: pointer;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .cart-modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1001; padding: 20px;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
+    .cart-modal-overlay.active { opacity: 1; pointer-events: all; }
+    .cart-modal {
+      background: #222; border-radius: 20px; max-width: 520px; width: 100%;
+      max-height: 90vh; overflow-y: auto;
+      border: 2px solid var(--mineiro-yellow);
+      transform: scale(0.9); transition: transform 0.3s;
+    }
+    .cart-modal-overlay.active .cart-modal { transform: scale(1); }
+
+    .cart-modal-header {
+      padding: 24px; border-bottom: 1px solid #333;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .cart-modal-title {
+      font-family: 'Bebas Neue', sans-serif; font-size: 28px;
+      color: var(--mineiro-yellow);
+    }
+    .cart-close {
+      width: 36px; height: 36px; background: rgba(0,0,0,0.7);
+      border: none; border-radius: 50%; color: #fff; font-size: 20px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+
+    .cart-items { padding: 20px 24px; }
+    .cart-empty { text-align: center; padding: 40px 20px; color: #888; }
+
+    .cart-item {
+      background: #2a2a2a; border-radius: 14px; padding: 16px;
+      margin-bottom: 12px; position: relative;
+    }
+    .cart-item-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 8px;
+    }
+    .cart-item-name { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: #fff; }
+    .cart-item-price { font-size: 18px; font-weight: 700; color: var(--mineiro-yellow); }
+    .cart-item-additionals { font-size: 12px; color: #aaa; line-height: 1.6; }
+    .cart-item-remove {
+      position: absolute; top: 12px; right: 12px;
+      background: transparent; border: none; color: #666;
+      font-size: 18px; cursor: pointer;
+    }
+
+    .cart-footer {
+      padding: 20px 24px; border-top: 2px solid var(--mineiro-yellow);
+      background: #1a1a1a;
+    }
+    .cart-total-row {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 16px;
+    }
+    .cart-total-label { font-size: 16px; color: #aaa; }
+    .cart-total-value { font-size: 28px; font-weight: 700; color: var(--mineiro-yellow); }
+
+    .whatsapp-final-btn {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      width: 100%; padding: 18px; border: none; border-radius: 14px;
+      background: linear-gradient(135deg, #25D366, #128C7E);
+      color: #fff; font-size: 17px; font-weight: 700; cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      text-decoration: none;
+    }
+
+    .clear-cart-btn {
+      width: 100%; padding: 12px; margin-top: 10px;
+      background: transparent; border: 1px solid #444;
+      border-radius: 10px; color: #888; font-size: 13px;
+      cursor: pointer; font-family: 'Inter', sans-serif;
+    }
+
+    .footer { background: #111; padding: 30px 24px; text-align: center; border-top: 2px solid var(--mineiro-yellow); }
+    .footer p { color: #666; font-size: 13px; }
+    .footer .highlight { color: var(--mineiro-yellow); font-weight: 600; }
+
+    .category-tabs { display: flex; gap: 10px; justify-content: center; margin-bottom: 32px; flex-wrap: wrap; }
+    .category-tab {
+      padding: 10px 24px; background: #2a2a2a; border: 2px solid transparent;
+      border-radius: 30px; color: #aaa; font-size: 14px; font-weight: 600;
+      cursor: pointer; font-family: 'Inter', sans-serif;
+    }
+    .category-tab.active { background: var(--mineiro-yellow); color: var(--mineiro-dark); border-color: var(--mineiro-yellow); }
+
+    .toast {
+      position: fixed; bottom: 100px; left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--mineiro-yellow); color: var(--mineiro-dark);
+      padding: 14px 28px; border-radius: 12px; font-weight: 600; font-size: 14px;
+      z-index: 2000; opacity: 0; transition: all 0.4s;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 36px; }
+      .menu-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="logo-section">
+      <div class="logo-icon">🍔</div>
+      <div>
+        <div class="logo-text">MINEIRINHO</div>
+        <div class="logo-sub">Hambúrgueria Artesanal</div>
+      </div>
+    </div>
+    <button class="cart-header-btn" onclick="openCartModal()">
+      <span>🛒 Meu Pedido</span>
+      <span class="cart-badge hidden" id="cartBadge">0</span>
+    </button>
+  </header>
+
+  <section class="hero">
+    <h1>O MELHOR HAMBÚRGUER DA CIDADE</h1>
+    <p>Escolha quantos lanches quiser, personalize com adicionais e finalize pelo WhatsApp!</p>
+  </section>
+
+  <section class="menu-section">
+    <div class="category-tabs">
+      <button class="category-tab active" onclick="filterCategory('all', this)">Todos</button>
+      <button class="category-tab" onclick="filterCategory('burger', this)">Hambúrgueres</button>
+      <button class="category-tab" onclick="filterCategory('combo', this)">Combos</button>
+      <button class="category-tab" onclick="filterCategory('drink', this)">Bebidas</button>
+    </div>
+
+    <h2 class="section-title">NOSSO CARDÁPIO</h2>
+
+    <div class="menu-grid" id="menuGrid">
+      <!-- NOMES DAS IMAGENS QUE VOCÊ VAI FAZER UPLOAD -->
+      <div class="burger-card" data-category="burger" onclick="openModal(0)">
+        <img class="burger-img" src="img/mineirao.jpg" alt="Mineirão">
+        <div class="burger-info">
+          <div class="burger-name">Mineirão</div>
+          <div class="burger-desc">Carne 180g, queijo coalho, bacon crocante, cebola caramelizada e molho especial.</div>
+          <div class="burger-price">R$ 32,90 <span>a partir</span></div>
+        </div>
+        <button class="add-btn">+</button>
+      </div>
+
+      <div class="burger-card" data-category="burger" onclick="openModal(1)">
+        <img class="burger-img" src="img/trem-de-boi.jpg" alt="Trem de Boi">
+        <div class="burger-info">
+          <div class="burger-name">Trem de Boi</div>
+          <div class="burger-desc">Dupla carne 180g, duplo cheddar, bacon em tiras, alface e tomate no pão brioche.</div>
+          <div class="burger-price">R$ 38,90 <span>a partir</span></div>
+        </div>
+        <button class="add-btn">+</button>
+      </div>
+
+      <div class="burger-card" data-category="burger" onclick="openModal(2)">
+        <img class="burger-img" src="img/pao-de-queijo.jpg" alt="Pão de Queijo Burger">
+        <div class="burger-info">
+          <div class="burger-name">Pão de Queijo Burger</div>
+          <div class="burger-desc">Carne 180g com queijo prato, servido entre dois pães de queijo artesanais.</div>
+          <div class="burger-price">R$ 35,90 <span>a partir</span></div>
+        </div>
+        <button class="add-btn">+</button>
+      </div>
+
+      <div class="burger-card" data-category="burger" onclick="openModal(3)">
+        <img class="burger-img" src="img/frango-quiabo.jpg" alt="Frango com Quiabo">
+        <div class="burger-info">
+          <div class="burger-name">Frango com Quiabo</div>
+          <div class="burger-desc">Peito de frango empanado, queijo prato, alface e molho de pimenta biquinho.</div>
+          <div class="burger-price">R$ 29,90 <span>a partir</span></div>
+        </div>
+        <button class="add-btn">+</button>
+      </div>
+
+      <div class="burger-card" data-category="burger" onclick="openModal(4)">
+        <img class="burger-img" src="img/serra-cipo.jpg" alt="Serra do Cipó">
+        <div class="burger-info">
+          <div class="burger-name">Serra do Cipó</div>
+          <div class="burger-desc">Hambúrguer de grão-de-bico, queijo coalho, rúcula, tomate seco e maionese de ervas.</div>
+          <div class="burger-price">R$ 27,90 <span>a partir</span></div>
+        </div>
+        <button class="add-btn">+</button>
+      </div>
+
+      <div class="burger-card" data-category="combo" onclick="openModal(5)">
+        <img class="burger-img" src="img/combo-mineirao.jpg" alt="Combo Mineirão">
+        <div class="burger-info">
+          <div class="burger-name">Combo Mineirão</div>
+          <div class="burger-desc">Mineirão + Batata frita grande + Refrigerante 350ml.</div>
+          <div class="burger-price">R$ 44,90 <span>a partir</span></div>
+        </div>
+        <button class="add-btn">+</button>
+      </div>
+
+      <div class="burger-card" data-category="combo" onclick="openModal(6)">
+        <img class="burger-img" src="img/combo-familia.jpg" alt="Combo Família">
+        <div class="burger-info">
+          <div class="burger-name">Combo Família</div>
+          <div class="burger-desc">2 hambúrgueres à escolha + 2 batatas grandes + 2 refrigerantes 350ml.</div>
+          <div class="burger-price">R$ 79,90 <span>a partir</span></div>
+        </div>
+        <button class="add-btn">+</button>
+      </div>
+
+      <div class="burger-card" data-category="drink" onclick="openModal(7)">
+        <img class="burger-img" src="img/refrigerante.jpg" alt="Refrigerante">
+        <div class="burger-info">
+          <div class="burger-name">Refrigerante</div>
+          <div class="burger-desc">Coca-Cola, Guaraná Antarctica, Fanta Laranja ou Sprite. Lata 350ml.</div>
+          <div class="burger-price">R$ 6,90</div>
+        </div>
+        <button class="add-btn">+</button>
+      </div>
+
+      <div class="burger-card" data-category="drink" onclick="openModal(8)">
+        <img class="burger-img" src="img/milk-shake.jpg" alt="Milk Shake">
+        <div class="burger-info">
+          <div class="burger-name">Milk Shake</div>
+          <div class="burger-desc">Chocolate, Morango, Ovomaltine ou Doce de Leite. 400ml cremoso.</div>
+          <div class="burger-price">R$ 14,90</div>
+        </div>
+        <button class="add-btn">+</button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p><span class="highlight">Mineirinho Hamburgueria</span> — Sabor que vem de Minas 🧀</p>
+    <p style="margin-top:6px; font-size:12px;">Funcionamento: Terça a Domingo • 18h às 23h</p>
+  </footer>
+
+  <!-- Modal de Adicionais -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <img id="modalImg" src="" alt="">
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-title" id="modalTitle"></div>
+        <div class="modal-desc" id="modalDesc"></div>
+        <div class="additionals-title">Adicionais</div>
+        <div id="additionalsList"></div>
+      </div>
+      <div class="modal-footer">
+        <div>
+          <div class="total-label">Total deste item</div>
+          <div class="total-value" id="modalTotal">R$ 0,00</div>
+        </div>
+        <button class="add-to-cart-btn" onclick="addToCart()">
+          🛒 Adicionar ao Pedido
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal do Carrinho -->
+  <div class="cart-modal-overlay" id="cartModalOverlay" onclick="closeCartModal(event)">
+    <div class="cart-modal" onclick="event.stopPropagation()">
+      <div class="cart-modal-header">
+        <div class="cart-modal-title">🛒 Meu Pedido</div>
+        <button class="cart-close" onclick="closeCartModal()">✕</button>
+      </div>
+      <div class="cart-items" id="cartItems"></div>
+      <div class="cart-footer" id="cartFooter" style="display:none;">
+        <div class="cart-total-row">
+          <div class="cart-total-label">Total do Pedido</div>
+          <div class="cart-total-value" id="cartTotal">R$ 0,00</div>
+        </div>
+        <a id="whatsappFinalBtn" class="whatsapp-final-btn" href="#" target="_blank" rel="noopener">
+          📱 Enviar pedido pelo WhatsApp
+        </a>
+        <button class="clear-cart-btn" onclick="clearCart()">🗑️ Limpar pedido</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">✅ Adicionado ao pedido!</div>
+
+  <script>
+    const WHATSAPP_NUMBER = "5531999999999"; // 🔴 TROQUE PELO NÚMERO REAL!
+
+    const menuItems = [
+      { name: "Mineirão", desc: "Carne 180g, queijo coalho, bacon crocante, cebola caramelizada e molho especial.", price: 32.90, img: "img/mineirao.jpg", additionals: [{ name: "Adicional de Frango", price: 8.00 }, { name: "Bacon Extra", price: 5.00 }, { name: "Queijo Extra", price: 4.00 }, { name: "Ovo", price: 3.50 }, { name: "Batata Palha", price: 3.00 }, { name: "Molho Especial Extra", price: 2.00 }] },
+      { name: "Trem de Boi", desc: "Dupla carne 180g, duplo cheddar, bacon em tiras, alface e tomate no pão brioche.", price: 38.90, img: "img/trem-de-boi.jpg", additionals: [{ name: "Adicional de Frango", price: 8.00 }, { name: "Bacon Extra", price: 5.00 }, { name: "Queijo Extra", price: 4.00 }, { name: "Ovo", price: 3.50 }, { name: "Cheddar Extra", price: 4.50 }, { name: "Cebola Caramelizada", price: 3.00 }] },
+      { name: "Pão de Queijo Burger", desc: "Carne 180g com queijo prato, servido entre dois pães de queijo artesanais.", price: 35.90, img: "img/pao-de-queijo.jpg", additionals: [{ name: "Adicional de Frango", price: 8.00 }, { name: "Bacon Extra", price: 5.00 }, { name: "Queijo Coalho Extra", price: 5.00 }, { name: "Ovo", price: 3.50 }, { name: "Requeijão Cremoso", price: 3.50 }] },
+      { name: "Frango com Quiabo", desc: "Peito de frango empanado, queijo prato, alface e molho de pimenta biquinho.", price: 29.90, img: "img/frango-quiabo.jpg", additionals: [{ name: "Adicional de Frango", price: 8.00 }, { name: "Queijo Extra", price: 4.00 }, { name: "Bacon", price: 5.00 }, { name: "Ovo", price: 3.50 }, { name: "Molho de Pimenta Extra", price: 2.00 }] },
+      { name: "Serra do Cipó", desc: "Hambúrguer de grão-de-bico, queijo coalho, rúcula, tomate seco e maionese de ervas.", price: 27.90, img: "img/serra-cipo.jpg", additionals: [{ name: "Adicional de Frango", price: 8.00 }, { name: "Queijo Coalho Extra", price: 5.00 }, { name: "Tomate Seco Extra", price: 3.50 }, { name: "Rúcula Extra", price: 2.50 }, { name: "Ovo", price: 3.50 }] },
+      { name: "Combo Mineirão", desc: "Mineirão + Batata frita grande + Refrigerante 350ml.", price: 44.90, img: "img/combo-mineirao.jpg", additionals: [{ name: "Adicional de Frango", price: 8.00 }, { name: "Bacon no Burger", price: 5.00 }, { name: "Batata Extra", price: 12.00 }, { name: "Refrigerante 600ml", price: 4.00 }, { name: "Molho Extra", price: 2.00 }] },
+      { name: "Combo Família", desc: "2 hambúrgueres à escolha + 2 batatas grandes + 2 refrigerantes 350ml.", price: 79.90, img: "img/combo-familia.jpg", additionals: [{ name: "Adicional de Frango (2x)", price: 14.00 }, { name: "Bacon Extra (2x)", price: 8.00 }, { name: "Batata Extra", price: 12.00 }, { name: "Refrigerante 2L", price: 8.00 }, { name: "Nuggets (10 unid.)", price: 15.00 }] },
+      { name: "Refrigerante", desc: "Coca-Cola, Guaraná Antarctica, Fanta Laranja ou Sprite. Lata 350ml.", price: 6.90, img: "img/refrigerante.jpg", additionals: [{ name: "Tamanho 600ml", price: 3.00 }, { name: "Tamanho 2L", price: 7.00 }, { name: "Gelo Extra", price: 0.00 }] },
+      { name: "Milk Shake", desc: "Chocolate, Morango, Ovomaltine ou Doce de Leite. 400ml cremoso.", price: 14.90, img: "img/milk-shake.jpg", additionals: [{ name: "Chantilly Extra", price: 2.50 }, { name: "Calda Extra", price: 2.00 }, { name: "Granulado", price: 1.50 }, { name: "Tamanho 600ml", price: 5.00 }] }
+    ];
+
+    let currentItem = null;
+    let selectedAdditionals = new Set();
+    let cart = [];
+
+    function openModal(index) {
+      currentItem = menuItems[index];
+      selectedAdditionals.clear();
+
+      document.getElementById('modalImg').src = currentItem.img;
+      document.getElementById('modalTitle').textContent = currentItem.name;
+      document.getElementById('modalDesc').textContent = currentItem.desc;
+
+      const list = document.getElementById('additionalsList');
+      list.innerHTML = '';
+
+      currentItem.additionals.forEach((add, i) => {
+        const div = document.createElement('div');
+        div.className = 'additional-item';
+        div.dataset.index = i;
+        div.onclick = () => toggleAdditional(i);
+        div.innerHTML = `
+          <div class="additional-left">
+            <div class="additional-check">✓</div>
+            <div class="additional-name">${add.name}</div>
+          </div>
+          <div class="additional-price">+ R$ ${add.price.toFixed(2).replace('.', ',')}</div>
+        `;
+        list.appendChild(div);
+      });
+
+      updateModalTotal();
+      document.getElementById('modalOverlay').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(e) {
+      if (e && e.target !== e.currentTarget) return;
+      document.getElementById('modalOverlay').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function toggleAdditional(index) {
+      const items = document.querySelectorAll('.additional-item');
+      if (selectedAdditionals.has(index)) {
+        selectedAdditionals.delete(index);
+        items[index].classList.remove('selected');
+      } else {
+        selectedAdditionals.add(index);
+        items[index].classList.add('selected');
+      }
+      updateModalTotal();
+    }
+
+    function updateModalTotal() {
+      let total = currentItem.price;
+      selectedAdditionals.forEach(i => {
+        total += currentItem.additionals[i].price;
+      });
+      document.getElementById('modalTotal').textContent = 'R$ ' + total.toFixed(2).replace('.', ',');
+    }
+
+    function addToCart() {
+      const additionalsList = [];
+      selectedAdditionals.forEach(i => {
+        additionalsList.push(currentItem.additionals[i]);
+      });
+
+      let itemTotal = currentItem.price;
+      additionalsList.forEach(a => itemTotal += a.price);
+
+      cart.push({
+        item: currentItem,
+        additionals: additionalsList,
+        total: itemTotal
+      });
+
+      updateCartBadge();
+      closeModal();
+      showToast("✅ Adicionado ao pedido!");
+    }
+
+    function updateCartBadge() {
+      const badge = document.getElementById('cartBadge');
+      badge.textContent = cart.length;
+      if (cart.length > 0) {
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    function openCartModal() {
+      renderCart();
+      document.getElementById('cartModalOverlay').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeCartModal(e) {
+      if (e && e.target !== e.currentTarget) return;
+      document.getElementById('cartModalOverlay').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function renderCart() {
+      const container = document.getElementById('cartItems');
+      const footer = document.getElementById('cartFooter');
+
+      if (cart.length === 0) {
+        container.innerHTML = '<div class="cart-empty"><p>Seu pedido está vazio.<br>Escolha um lanche! 🍔</p></div>';
+        footer.style.display = 'none';
+        return;
+      }
+
+      let html = '';
+      let grandTotal = 0;
+
+      cart.forEach((cartItem, idx) => {
+        grandTotal += cartItem.total;
+        let addHtml = '';
+        if (cartItem.additionals.length > 0) {
+          addHtml = '<strong>Adicionais:</strong><br>' + cartItem.additionals.map(a => `• ${a.name} (+R$ ${a.price.toFixed(2).replace('.', ',')})`).join('<br>');
+        }
+
+        html += `
+          <div class="cart-item">
+            <button class="cart-item-remove" onclick="removeFromCart(${idx})">✕</button>
+            <div class="cart-item-header">
+              <div class="cart-item-name">${cartItem.item.name}</div>
+              <div class="cart-item-price">R$ ${cartItem.total.toFixed(2).replace('.', ',')}</div>
+            </div>
+            <div class="cart-item-additionals">${addHtml}</div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+      document.getElementById('cartTotal').textContent = 'R$ ' + grandTotal.toFixed(2).replace('.', ',');
+      footer.style.display = 'block';
+
+      let msg = `*🍔 Pedido Mineirinho*%0A%0A`;
+      cart.forEach((ci, i) => {
+        msg += `*${i + 1}. ${ci.item.name}*%0A`;
+        msg += `   Preço base: R$ ${ci.item.price.toFixed(2).replace('.', ',')}%0A`;
+        if (ci.additionals.length > 0) {
+          ci.additionals.forEach(a => {
+            msg += `   + ${a.name}: R$ ${a.price.toFixed(2).replace('.', ',')}%0A`;
+          });
+        }
+        msg += `   *Subtotal: R$ ${ci.total.toFixed(2).replace('.', ',')}*%0A%0A`;
+      });
+      msg += `*💰 TOTAL GERAL: R$ ${grandTotal.toFixed(2).replace('.', ',')}*%0A`;
+      msg += `%0AQuero confirmar este pedido! 🚀`;
+
+      document.getElementById('whatsappFinalBtn').href = `https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`;
+    }
+
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      updateCartBadge();
+      renderCart();
+    }
+
+    function clearCart() {
+      cart = [];
+      updateCartBadge();
+      renderCart();
+      showToast("🗑️ Pedido limpo!");
+    }
+
+    function filterCategory(cat, btn) {
+      document.querySelectorAll('.category-tab').forEach(tab => tab.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.burger-card').forEach(card => {
+        card.style.display = (cat === 'all' || card.dataset.category === cat) ? 'block' : 'none';
+      });
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeModal();
+        closeCartModal();
+      }
+    });
+  </script>
+
+</body>
+</html>
